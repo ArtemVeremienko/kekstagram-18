@@ -51,6 +51,7 @@ var permutationArray = function (array) {
 
 var urlsRandom = permutationArray(urls);
 
+// Получаем случайный элемент из массива
 var getRandomElement = function (array) {
   var randomElement = Math.floor(Math.random() * array.length);
   return array[randomElement];
@@ -74,7 +75,7 @@ for (i = 0; i < PHOTOS_MAX; i++) {
   pictures.push(createPicture(urlsRandom[i], MIN_LIKES, MAX_LIKES, PICTURE_COMMENTS, PICTURE_DESCRIPTION));
 }
 
-// Создание DOM элементов
+// Создание DOM элементов - картинки из массива в случайном порядке
 var pictureTemplate = document.querySelector('#picture').content;
 
 var renderPicture = function (picture) {
@@ -97,8 +98,7 @@ var picturesElement = document.querySelector('.pictures');
 picturesElement.appendChild(fragment);
 
 var bigPictureElement = document.querySelector('.big-picture');
-// Показываю элемент
-bigPictureElement.classList.remove('hidden');
+
 // Заполняю данными из первого элемента массива pictures
 bigPictureElement.querySelector('.big-picture__img > img').src = pictures[0].url;
 bigPictureElement.querySelector('.likes-count').textContent = pictures[0].likes;
@@ -122,3 +122,26 @@ var visuallyHidden = function (classString) {
 visuallyHidden('.social__comment-count');
 // и загрузку новых комментариев
 visuallyHidden('.social__comments-loader');
+
+var pictureImage = picturesElement.querySelector('.picture__img');
+var buttonClose = document.body.querySelectorAll('.cancel');
+// Показываю оверлей
+var onPictureClick = function (evt) {
+  if (evt.target.classList.contains('picture__img')) {
+    bigPictureElement.classList.remove('hidden');
+    document.body.removeEventListener('click', onPictureClick);
+  }
+};
+// Открытие оверлея при клике на картинку
+document.body.addEventListener('click', onPictureClick);
+
+// Прячу оверлей
+var onButtonCloseClick = function () {
+  bigPictureElement.classList.add('hidden');
+  document.body.addEventListener('click', onPictureClick);
+};
+
+for (i = 0; i < buttonClose.length; i++) {
+  buttonClose[i].addEventListener('click', onButtonCloseClick);
+}
+
