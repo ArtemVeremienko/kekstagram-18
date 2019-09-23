@@ -123,8 +123,7 @@ visuallyHidden('.social__comment-count');
 // и загрузку новых комментариев
 visuallyHidden('.social__comments-loader');
 
-var pictureImage = picturesElement.querySelector('.picture__img');
-var buttonClose = document.body.querySelectorAll('.cancel');
+var buttonBigPictureClose = document.body.querySelector('.big-picture__cancel');
 // Показываю оверлей
 var onPictureClick = function (evt) {
   if (evt.target.classList.contains('picture__img')) {
@@ -141,7 +140,22 @@ var onButtonCloseClick = function () {
   document.body.addEventListener('click', onPictureClick);
 };
 
-for (i = 0; i < buttonClose.length; i++) {
-  buttonClose[i].addEventListener('click', onButtonCloseClick);
-}
+buttonBigPictureClose.addEventListener('click', onButtonCloseClick);
 
+// Загрузка изображения и показ формы для редактирования
+var uploadFileInput = picturesElement.querySelector('#upload-file');
+var imageUploadOverlay = picturesElement.querySelector('.img-upload__overlay');
+var buttonUploadClose = picturesElement.querySelector('.img-upload__cancel');
+
+// При выборе файла показываю форму редактирования
+uploadFileInput.addEventListener('change', function() {
+  imageUploadOverlay.classList.remove('hidden');
+  console.log(uploadFileInput.value);
+  document.body.removeEventListener('click', onPictureClick);
+});
+// При нажатии на закрыть скрываю форму редактирования
+buttonUploadClose.addEventListener('click', function () {
+  imageUploadOverlay.classList.add('hidden');
+  // uploadFileInput.value = '';
+  document.body.addEventListener('click', onPictureClick);
+});
