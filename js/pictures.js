@@ -8,7 +8,7 @@ var PICTURE_COMMENTS = [
   'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
-var PICTURE_DESCRIPTION = [
+var PICTURE_DESCRIPTIONS = [
   'Тестим новую камеру!',
   'Затусили с друзьями на море',
   'Как же круто тут кормят',
@@ -72,7 +72,7 @@ var createPicture = function (url, minLikes, maxLikes, comments, description) {
 var pictures = [];
 
 for (i = 0; i < PHOTOS_MAX; i++) {
-  pictures.push(createPicture(urlsRandom[i], MIN_LIKES, MAX_LIKES, PICTURE_COMMENTS, PICTURE_DESCRIPTION));
+  pictures.push(createPicture(urlsRandom[i], MIN_LIKES, MAX_LIKES, PICTURE_COMMENTS, PICTURE_DESCRIPTIONS));
 }
 
 // Создание DOM элементов - картинки из массива в случайном порядке
@@ -98,9 +98,10 @@ var picturesElement = document.querySelector('.pictures');
 picturesElement.appendChild(fragment);
 
 var bigPictureElement = document.querySelector('.big-picture');
+var bigPictureImage = bigPictureElement.querySelector('.big-picture__img img');
 
 // Заполняю данными из первого элемента массива pictures
-bigPictureElement.querySelector('.big-picture__img > img').src = pictures[0].url;
+
 bigPictureElement.querySelector('.likes-count').textContent = pictures[0].likes;
 bigPictureElement.querySelector('.comments-count').textContent = pictures[0].comments.length;
 bigPictureElement.querySelector('.social__caption').textContent = pictures[0].description;
@@ -127,6 +128,7 @@ var buttonBigPictureClose = document.body.querySelector('.big-picture__cancel');
 // Показываю оверлей
 var onPictureClick = function (evt) {
   if (evt.target.classList.contains('picture__img')) {
+    bigPictureImage.src = evt.target.src;
     bigPictureElement.classList.remove('hidden');
     document.body.removeEventListener('click', onPictureClick);
   }
@@ -143,19 +145,73 @@ var onButtonCloseClick = function () {
 buttonBigPictureClose.addEventListener('click', onButtonCloseClick);
 
 // Загрузка изображения и показ формы для редактирования
-var uploadFileInput = picturesElement.querySelector('#upload-file');
-var imageUploadOverlay = picturesElement.querySelector('.img-upload__overlay');
-var buttonUploadClose = picturesElement.querySelector('.img-upload__cancel');
+var uploadImageForm = document.querySelector('#upload-select-image');
+var uploadFileInput = uploadImageForm.querySelector('#upload-file');
+var imageUploadOverlay = uploadImageForm.querySelector('.img-upload__overlay');
+var buttonUploadClose = uploadImageForm.querySelector('.img-upload__cancel');
 
 // При выборе файла показываю форму редактирования
-uploadFileInput.addEventListener('change', function() {
+uploadFileInput.addEventListener('change', function () {
   imageUploadOverlay.classList.remove('hidden');
-  console.log(uploadFileInput.value);
   document.body.removeEventListener('click', onPictureClick);
 });
 // При нажатии на закрыть скрываю форму редактирования
 buttonUploadClose.addEventListener('click', function () {
   imageUploadOverlay.classList.add('hidden');
-  // uploadFileInput.value = '';
+  uploadFileInput.value = '';
   document.body.addEventListener('click', onPictureClick);
 });
+
+// Применение эффекта для изображения
+var imageUploadPreview = uploadImageForm.querySelector('.img-upload__preview img');
+var effectLevelPin = uploadImageForm.querySelector('.effect-level__pin');
+var effectNone = uploadImageForm.querySelector('.effects__preview--none');
+var effectChrome = uploadImageForm.querySelector('.effects__preview--chrome');
+var effectSepia = uploadImageForm.querySelector('.effects__preview--sepia');
+var effectMarvin = uploadImageForm.querySelector('.effects__preview--marvin');
+var effectPhobos = uploadImageForm.querySelector('.effects__preview--phobos');
+var effectHeat = uploadImageForm.querySelector('.effects__preview--heat');
+var levelPin = 1;
+
+// Добавляю обработчик события для элементов с эффектами
+effectNone.addEventListener('click', function () {
+  imageUploadPreview.removeAttribute('style');
+});
+
+effectChrome.addEventListener('click', function () {
+  imageUploadPreview.style.WebkitFilter = 'grayscale(' + (1 * levelPin) + ')';
+  imageUploadPreview.style.filter = 'grayscale(' + (1 * levelPin) + ')';
+  levelPin = 1;
+});
+
+effectSepia.addEventListener('click', function () {
+  imageUploadPreview.style.WebkitFilter = 'sepia(1)';
+  imageUploadPreview.style.filter = 'sepia(1)';
+});
+
+effectMarvin.addEventListener('click', function () {
+  imageUploadPreview.style.WebkitFilter = 'invert(1)';
+  imageUploadPreview.style.filter = 'invert(1)';
+});
+
+effectPhobos.addEventListener('click', function () {
+  imageUploadPreview.style.WebkitFilter = 'blur(5px)';
+  imageUploadPreview.style.filter = 'blur(5px)';
+});
+
+effectHeat.addEventListener('click', function () {
+  imageUploadPreview.style.WebkitFilter = 'brightness(3)';
+  imageUploadPreview.style.filter = 'brightness(3)';
+});
+
+
+// Определяю значение слайдера
+// var getSliderValue = function () {
+//   var left = parseInt(getComputedStyle(effectLevelPin).left, 10);
+//   return left / 100; // привожу проценты к числу
+// };
+
+// Добавляю обработчик события при mouseup
+// effectLevelPin.addEventListener('mouseup', function () {
+//   levelPin = 0.2;
+// });
