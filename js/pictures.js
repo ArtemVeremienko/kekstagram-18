@@ -19,6 +19,9 @@ var PICTURE_DESCRIPTIONS = [
 var PHOTOS_MAX = 25;
 var MIN_LIKES = 15;
 var MAX_LIKES = 200;
+var ESC_KEYCODE = 27;
+var MAX_HASHTAGS_COUNT = 5;
+var MAX_HASHTAGS_LENGTH = 19;
 
 // Случайное целое число от min до max
 // https://learn.javascript.ru/number#sluchaynoe-tseloe-chislo-ot-min-do-max
@@ -124,6 +127,15 @@ visuallyHidden('.social__comment-count');
 // и загрузку новых комментариев
 visuallyHidden('.social__comments-loader');
 
+// При нажатии на ESC происходит закрытие диалога загрузки
+// если не вводим хештег или комментарий
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE && evt.target !== hashtagsInput && evt.target !== commentsTextarea) {
+    onCloseUploadClick();
+    onButtonCloseClick();
+  }
+};
+
 var buttonBigPictureClose = document.body.querySelector('.big-picture__cancel');
 // Показываю оверлей
 var onPictureClick = function (evt) {
@@ -131,6 +143,7 @@ var onPictureClick = function (evt) {
     bigPictureImage.src = evt.target.src;
     bigPictureElement.classList.remove('hidden');
     document.body.removeEventListener('click', onPictureClick);
+    document.addEventListener('keydown', onPopupEscPress);
   }
 };
 // Открытие оверлея при клике на картинку
@@ -149,59 +162,70 @@ var uploadImageForm = document.querySelector('#upload-select-image');
 var uploadFileInput = uploadImageForm.querySelector('#upload-file');
 var imageUploadOverlay = uploadImageForm.querySelector('.img-upload__overlay');
 var buttonUploadClose = uploadImageForm.querySelector('.img-upload__cancel');
+var hashtagsInput = uploadImageForm.querySelector('.text__hashtags');
+var commentsTextarea = uploadImageForm.querySelector('.text__description');
 
-// При выборе файла показываю форму редактирования
-uploadFileInput.addEventListener('change', function () {
+var onUploadClick = function () {
   imageUploadOverlay.classList.remove('hidden');
   document.body.removeEventListener('click', onPictureClick);
-});
-// При нажатии на закрыть скрываю форму редактирования
-buttonUploadClose.addEventListener('click', function () {
+  document.addEventListener('keydown', onPopupEscPress);
+};
+
+var onCloseUploadClick = function () {
   imageUploadOverlay.classList.add('hidden');
   uploadFileInput.value = '';
-  document.body.addEventListener('click', onPictureClick);
-});
+  document.removeEventListener('keydown', onPopupEscPress);
+};
+
+// При выборе файла показываю форму редактирования
+uploadFileInput.addEventListener('change', onUploadClick);
+
+// При нажатии на закрыть скрываю форму редактирования
+buttonUploadClose.addEventListener('click', onCloseUploadClick);
 
 // Применение эффекта для изображения
 var imageUploadPreview = uploadImageForm.querySelector('.img-upload__preview img');
-var effectLevelPin = uploadImageForm.querySelector('.effect-level__pin');
+// var effectLevelPin = uploadImageForm.querySelector('.effect-level__pin');
 var effectNone = uploadImageForm.querySelector('.effects__preview--none');
 var effectChrome = uploadImageForm.querySelector('.effects__preview--chrome');
 var effectSepia = uploadImageForm.querySelector('.effects__preview--sepia');
 var effectMarvin = uploadImageForm.querySelector('.effects__preview--marvin');
 var effectPhobos = uploadImageForm.querySelector('.effects__preview--phobos');
 var effectHeat = uploadImageForm.querySelector('.effects__preview--heat');
-var levelPin = 1;
+// var levelPin = 1;
+
+var removeAllClasses = function () {
+  imageUploadPreview.className = '';
+};
 
 // Добавляю обработчик события для элементов с эффектами
 effectNone.addEventListener('click', function () {
-  imageUploadPreview.removeAttribute('style');
+  removeAllClasses();
 });
 
 effectChrome.addEventListener('click', function () {
-  imageUploadPreview.style.WebkitFilter = 'grayscale(' + (1 * levelPin) + ')';
-  imageUploadPreview.style.filter = 'grayscale(' + (1 * levelPin) + ')';
-  levelPin = 1;
+  removeAllClasses();
+  imageUploadPreview.classList.add('effects__preview--chrome');
 });
 
 effectSepia.addEventListener('click', function () {
-  imageUploadPreview.style.WebkitFilter = 'sepia(1)';
-  imageUploadPreview.style.filter = 'sepia(1)';
+  removeAllClasses();
+  imageUploadPreview.classList.add('effects__preview--sepia');
 });
 
 effectMarvin.addEventListener('click', function () {
-  imageUploadPreview.style.WebkitFilter = 'invert(1)';
-  imageUploadPreview.style.filter = 'invert(1)';
+  removeAllClasses();
+  imageUploadPreview.classList.add('effects__preview--marvin');
 });
 
 effectPhobos.addEventListener('click', function () {
-  imageUploadPreview.style.WebkitFilter = 'blur(5px)';
-  imageUploadPreview.style.filter = 'blur(5px)';
+  removeAllClasses();
+  imageUploadPreview.classList.add('effects__preview--phobos');
 });
 
 effectHeat.addEventListener('click', function () {
-  imageUploadPreview.style.WebkitFilter = 'brightness(3)';
-  imageUploadPreview.style.filter = 'brightness(3)';
+  removeAllClasses();
+  imageUploadPreview.classList.add('effects__preview--heat');
 });
 
 
@@ -215,3 +239,53 @@ effectHeat.addEventListener('click', function () {
 // effectLevelPin.addEventListener('mouseup', function () {
 //   levelPin = 0.2;
 // });
+
+// Валидация хеш-тегов
+// 1. Должны начинаться со символа '#'
+// 2. Разделяются пробелами
+// 3. Один и тот же хеш-тег не может использоваться дважды
+// 4. Нельзя указать больше 5 хеш-тегов
+// 5. Максимальная длина 20 символов, включая #
+// 6. Нечуствительны к регистру
+var hashtags = [];
+
+var isHashtag = function (array) {
+  for (i = 0; i < array.length; i++) {
+    if (array[i][0] !== '#') {
+      return false;
+    }
+  }
+  return true;
+};
+
+var checkHashtagLength = function (array, maxLength) {
+  for (i = 0; i < array.length; i++) {
+    if (array[i].length < 2 || array[i].length > maxLength) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// https://stackoverflow.com/questions/7376598/in-javascript-how-do-i-check-if-an-array-has-duplicate-values
+// Проверка массива хеш-тегов на дубликаты
+var hasDuplicate = function (array) {
+  // eslint-disable-next-line no-undef
+  return (new Set(array)).size !== array.length;
+};
+
+hashtagsInput.addEventListener('input', function (evt) {
+  hashtags = evt.target.value.toLowerCase().split(' ');
+
+  if (hashtags.length > MAX_HASHTAGS_COUNT) {
+    hashtagsInput.setCustomValidity('Нельзя указывать больше 5 хеш-тегов');
+  } else if (!isHashtag(hashtags)) {
+    hashtagsInput.setCustomValidity('Хеш-тег должен начинаться со символа "#" ');
+  } else if (!checkHashtagLength(hashtags, MAX_HASHTAGS_LENGTH)) {
+    hashtagsInput.setCustomValidity('Длина хеш-тега должна быть от 1 до 19 символов');
+  } else if (hasDuplicate(hashtags)) {
+    hashtagsInput.setCustomValidity('Один и тот же хеш-тег не может использоваться дважды');
+  } else {
+    hashtagsInput.setCustomValidity('');
+  }
+});
