@@ -251,11 +251,20 @@ var hashtags = [];
 
 var isHashtag = function (array) {
   for (i = 0; i < array.length; i++) {
-    if (array[i][0] !== '#') {
+    if (!array[i].startsWith('#')) {
       return false;
     }
   }
   return true;
+};
+
+var isHashtagInside = function (array) {
+  for (i = 0; i < array.length; i++) {
+    if (array[i].includes('#', 1)) {
+      return true;
+    }
+  }
+  return false;
 };
 
 var checkHashtagLength = function (array, maxLength) {
@@ -281,6 +290,8 @@ hashtagsInput.addEventListener('input', function (evt) {
     hashtagsInput.setCustomValidity('Нельзя указывать больше 5 хеш-тегов');
   } else if (!isHashtag(hashtags)) {
     hashtagsInput.setCustomValidity('Хеш-тег должен начинаться со символа "#" ');
+  } else if (isHashtagInside(hashtags)) {
+    hashtagsInput.setCustomValidity('Хеш-теги должны разделятся пробелами "#первый #второй" ');
   } else if (!checkHashtagLength(hashtags, MAX_HASHTAGS_LENGTH)) {
     hashtagsInput.setCustomValidity('Длина хеш-тега должна быть от 1 до 19 символов');
   } else if (hasDuplicate(hashtags)) {
