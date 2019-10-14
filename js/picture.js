@@ -35,16 +35,30 @@
     return pictureElement;
   };
 
-  var fragment = document.createDocumentFragment();
+  var successHandler = function (array) {
+    var fragment = document.createDocumentFragment();
 
-  for (i = 0; i < pictures.length; i++) {
-    fragment.appendChild(renderPicture(pictures[i]));
-  }
+    for (i = 0; i < array.length; i++) {
+      fragment.appendChild(renderPicture(array[i]));
+    }
 
-  var picturesElement = document.querySelector('.pictures');
-  picturesElement.appendChild(fragment);
-
-  window.picture = {
-    pictures
+    var picturesElement = document.querySelector('.pictures');
+    picturesElement.appendChild(fragment);
   };
+
+  var errorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; padding: 10px 0; text-align: center; background-color: crimson';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  window.backend.load(successHandler, errorHandler);
+
+  window.pictures = pictures;
 })();
