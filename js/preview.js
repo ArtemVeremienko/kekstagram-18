@@ -6,16 +6,16 @@
   var bigPictureElement = document.querySelector('.big-picture');
   var bigPictureImage = bigPictureElement.querySelector('.big-picture__img img');
 
-  bigPictureElement.querySelector('.likes-count').textContent = window.picture.pictures[0].likes;
-  bigPictureElement.querySelector('.comments-count').textContent = window.picture.pictures[0].comments.length;
-  bigPictureElement.querySelector('.social__caption').textContent = window.picture.pictures[0].description;
+  bigPictureElement.querySelector('.likes-count').textContent = window.pictures[0].likes;
+  bigPictureElement.querySelector('.comments-count').textContent = window.pictures[0].comments.length;
+  bigPictureElement.querySelector('.social__caption').textContent = window.pictures[0].description;
 
   var socialCommentsElement = bigPictureElement.querySelector('.social__comments');
 
   // Заполнение списка комментариев из первого элемента массива pictures
-  for (var i = 0; i < window.picture.pictures[0].comments.length; i++) {
+  for (var i = 0; i < window.pictures[0].comments.length; i++) {
     socialCommentsElement.querySelectorAll('.social__picture')[i].src = 'img/avatar-' + window.data.randomBetweenNumbers(1, 6) + '.svg';
-    socialCommentsElement.querySelectorAll('.social__text')[i].textContent = window.picture.pictures[0].comments[i];
+    socialCommentsElement.querySelectorAll('.social__text')[i].textContent = window.pictures[0].comments[i];
   }
 
   // Добавляем класс visually-hidden к первому найденому элементу
