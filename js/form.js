@@ -25,6 +25,7 @@
     document.body.addEventListener('click', window.preview.onPictureClick);
     removeAllClasses();
     imageUploadEffect.classList.add('hidden');
+    uploadImageForm.reset(); // Сброс значений формы на те, что были по умолчанию
   };
 
   // При выборе файла показываю форму редактирования
